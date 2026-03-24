@@ -1,46 +1,31 @@
-import 'package:btg_funds_app/presentation/blocs/account/account_bloc.dart';
-import 'package:btg_funds_app/presentation/blocs/account/account_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:btg_funds_app/core/theme/app_colors.dart';
+import 'package:btg_funds_app/core/theme/app_design.dart';
+import 'package:btg_funds_app/core/utils/formatters.dart';
+import 'package:btg_funds_app/data/enums/transaction_type.dart';
+import 'package:btg_funds_app/presentation/blocs/account/account_bloc.dart';
+import 'package:btg_funds_app/presentation/blocs/account/account_event.dart';
+import 'history_status_badge.dart';
+import 'history_info_item.dart';
 
 class DetailedInvestmentCard extends StatelessWidget {
-  final String title;
-  final String type;
-  final String initialInvestment;
-  final String profit;
-  final String startDate;
-  final String endDate;
-  final String annualRate;
-  final String totalGenerated;
-  final bool isActive;
+  final dynamic transaction;
 
-  const DetailedInvestmentCard({
-    super.key,
-    required this.title,
-    required this.type,
-    required this.initialInvestment,
-    required this.profit,
-    required this.startDate,
-    required this.endDate,
-    required this.annualRate,
-    required this.totalGenerated,
-    required this.isActive,
-  });
+  const DetailedInvestmentCard({super.key, required this.transaction});
 
   @override
   Widget build(BuildContext context) {
+    final bool isSub = transaction.type == TransactionType.subscription;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        // ignore: deprecated_member_use
+        color: AppColors.surface,
+        borderRadius: AppRadius.roundedMd,
         border: Border.all(
-          color: isActive
-              // ignore: deprecated_member_use
-              ? const Color(0xFF002C5F).withOpacity(0.3)
-              : Colors.grey.shade200,
+          color: isSub ? AppColors.primaryBlue.withOpacity(0.1) : AppColors.border,
         ),
       ),
       child: Column(
@@ -48,208 +33,118 @@ class DetailedInvestmentCard extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Alineado arriba para el menú
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      type,
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildHeaderInfo(isSub),
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? Colors.blue.shade50
-                          : Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      isActive ? 'ACTIVA' : 'COMPLETADA',
-                      style: TextStyle(
-                        color: isActive
-                            ? Colors.blue.shade800
-                            : Colors.green.shade800,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  // --- MENÚ DE 3 PUNTOS (Solo si está activa) ---
-                  if (isActive)
-                    PopupMenuButton<String>(
-                      icon: const Icon(
-                        Icons.more_vert,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
-                      onSelected: (value) {
-                        if (value == 'withdraw') {
-                          _showWithdrawConfirmation(context);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'withdraw',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.outbound_outlined,
-                                size: 18,
-                                color: Colors.red,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Desvincular / Retirar',
-                                style: TextStyle(fontSize: 13),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  HistoryStatusBadge(isActive: isSub),
+                  if (isSub) _buildMenu(context),
                 ],
               ),
             ],
           ),
-          const Divider(height: 24),
-          _buildRow(
-            'Inversión Inicial',
-            initialInvestment,
-            'Ganancia',
-            profit,
-            isProfit: true,
-          ),
-          const SizedBox(height: 8),
-          _buildRow('Fecha Inicio', startDate, 'Fecha Fin', endDate),
-          const SizedBox(height: 8),
-          _buildRow(
-            'Tasa Anual',
-            annualRate,
-            'Total Generado',
-            totalGenerated,
-            isBold: true,
-          ),
+          const Divider(height: AppSpacing.lg),
+          _buildDataGrid(isSub),
         ],
       ),
     );
   }
 
-  // Diálogo de confirmación para darle un toque "Senior"
-  void _showWithdrawConfirmation(BuildContext context) {
-    final accountBloc = context.read<AccountBloc>();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Confirmar Retiro',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          '¿Estás seguro de que deseas desvincularte de $title? El saldo será retornado a tu cuenta principal.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF002C5F),
-            ),
-            onPressed: () {
-              accountBloc.add(
-                UnsubscribeFromFundEvent(
-                  fundName: title,
-                  // Limpiamos el string de la inversión inicial para volverlo double
-                  amount:
-                      double.tryParse(
-                        initialInvestment.replaceAll(RegExp(r'[^\d]'), ''),
-                      ) ??
-                      0.0,
-                ),
-              );
-
-              Navigator.pop(context);
-            },
-            child: const Text('Confirmar Retiro'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRow(
-    String label1,
-    String val1,
-    String label2,
-    String val2, {
-    bool isProfit = false,
-    bool isBold = false,
-  }) {
-    return Row(
+  Widget _buildHeaderInfo(bool isSub) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label1,
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
-              ),
-              Text(
-                val1,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+        Text(
+          transaction.fundName,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                label2,
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
-              ),
-              Text(
-                val2,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-                  color: isProfit
-                      ? Colors.green.shade700
-                      : (isBold ? const Color(0xFF002C5F) : Colors.black),
-                ),
-              ),
-            ],
-          ),
+        Text(
+          isSub ? 'Fondo de Inversión' : 'Retiro de Capital',
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
         ),
       ],
+    );
+  }
+
+  Widget _buildMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, size: 20, color: AppColors.textLight),
+      onSelected: (value) => _showConfirmDialog(context),
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'withdraw',
+          child: Text('Desvincular / Retirar', style: TextStyle(fontSize: 13)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDataGrid(bool isSub) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: HistoryInfoItem(
+                label: 'Inversión', 
+                value: AppFormatters.toCurrency(transaction.amount)
+              ),
+            ),
+            Expanded(
+              child: HistoryInfoItem(
+                label: 'Ganancia', 
+                value: isSub ? 'En proceso' : 'Finalizado',
+                isProfit: true,
+                alignment: CrossAxisAlignment.end,
+              ),
+            ),
+          ],
+        ),
+        AppSpacing.vsm,
+        Row(
+          children: [
+            Expanded(
+              child: HistoryInfoItem(
+                label: 'Fecha', 
+                value: AppFormatters.formatDate(transaction.date)
+              ),
+            ),
+            Expanded(
+              child: HistoryInfoItem(
+                label: 'Tasa', 
+                value: AppFormatters.toPercentage(transaction.annualRate * 100),
+                alignment: CrossAxisAlignment.end,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirmar Retiro'),
+        content: Text('¿Deseas retirar fondos de ${transaction.fundName}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<AccountBloc>().add(UnsubscribeFromFundEvent(
+                fundName: transaction.fundName,
+                amount: transaction.amount,
+              ));
+              Navigator.pop(dialogContext);
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
     );
   }
 }

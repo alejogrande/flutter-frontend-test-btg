@@ -1,37 +1,45 @@
-
-import 'package:btg_funds_app/domain/entities/transaction_type_entity.dart';
+import 'package:btg_funds_app/data/enums/transaction_type.dart';
 
 class InvestmentSummary {
   final double totalInvested;
   final double averageRate;
   final double estimatedGains;
+  final double totalRecovered;
 
   InvestmentSummary({
     required this.totalInvested,
     required this.averageRate,
     required this.estimatedGains,
+    required this.totalRecovered,
   });
+  factory InvestmentSummary.fromHistory(List<dynamic> history) {
+    final subscriptions = history
+        .where((t) => t.type == TransactionType.subscription)
+        .toList();
 
-  // Este "factory" procesa el historial que viene del AccountState
-  factory InvestmentSummary.fromHistory(List<TransactionEntity> history) {
-    // Filtramos solo las que están marcadas como suscripción activa
-    final activeInvs = history.where((t) => t.isActive).toList();
+    final totalInvested = subscriptions.fold(
+      0.0,
+      (sum, item) => sum + item.amount,
+    );
 
-    if (activeInvs.isEmpty) {
-      return InvestmentSummary(totalInvested: 0, averageRate: 0, estimatedGains: 0);
+    final totalRecovered = history
+        .where((t) => t.type == TransactionType.cancellation)
+        .fold(0.0, (sum, item) => sum + item.amount);
+
+    double averageRate = 0.0;
+    if (subscriptions.isNotEmpty) {
+      final sumRates = subscriptions.fold(
+        0.0,
+        (sum, item) => sum + item.annualRate,
+      );
+      averageRate = (sumRates / subscriptions.length) * 100;
     }
 
-    // Sumamos los montos de las inversiones activas
-    final total = activeInvs.fold(0.0, (sum, t) => sum + t.amount);
-    
-    // Sacamos el promedio de rentabilidad de lo que el usuario tiene invertido
-    final sumRates = activeInvs.fold(0.0, (sum, t) => sum + t.annualRate);
-    final avgRate = (sumRates / activeInvs.length);
-    
     return InvestmentSummary(
-      totalInvested: total,
-      averageRate: avgRate * 100, // Lo pasamos a formato porcentaje (ej: 5.2)
-      estimatedGains: total * avgRate,
+      totalInvested: totalInvested,
+      totalRecovered: totalRecovered,
+      averageRate: averageRate,
+      estimatedGains: totalInvested * (averageRate / 100),
     );
   }
 }

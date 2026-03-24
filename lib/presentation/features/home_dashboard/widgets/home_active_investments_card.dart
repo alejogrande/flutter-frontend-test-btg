@@ -14,7 +14,6 @@ class ActiveInvestmentsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AccountBloc, AccountState>(
       builder: (context, state) {
-        // Usamos el getter isActive que definimos en tu Entity
         final activeSubscriptions = state.history
             .where((t) => t.isActive)
             .toList();

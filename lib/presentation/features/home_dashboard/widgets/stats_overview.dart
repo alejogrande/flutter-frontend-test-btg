@@ -18,7 +18,8 @@ class StatsOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isWide = constraints.maxWidth > 500;
+        final bool isWide = constraints.maxWidth > AppSpacing.mobileBreakpoint;
+        
         return Flex(
           direction: isWide ? Axis.horizontal : Axis.vertical,
           children: [
@@ -27,11 +28,13 @@ class StatsOverview extends StatelessWidget {
               value: AppFormatters.toCurrency(summary.totalInvested),
               isWide: isWide,
             ),
+            isWide ? AppSpacing.hsm : AppSpacing.vsm,
             SmallInfoCard(
               title: 'Rentabilidad',
               value: AppFormatters.toPercentage(summary.averageRate),
               isWide: isWide,
             ),
+            isWide ? AppSpacing.hsm : AppSpacing.vsm,
             SmallInfoCard(
               title: 'Ganancias',
               value: AppFormatters.toCurrency(summary.estimatedGains),

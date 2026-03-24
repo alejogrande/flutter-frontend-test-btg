@@ -6,8 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // Core & Theme
 import 'package:btg_funds_app/core/theme/app_colors.dart';
 import 'package:btg_funds_app/core/theme/app_design.dart';
-import 'package:btg_funds_app/core/utils/formatters.dart';
-import 'package:btg_funds_app/core/navigation/navigation_cubit.dart';
 
 // Domain
 import 'package:btg_funds_app/domain/entities/investment_summary.dart';

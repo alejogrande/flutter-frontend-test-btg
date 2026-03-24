@@ -1,42 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:btg_funds_app/core/theme/app_colors.dart';
+import 'package:btg_funds_app/core/theme/app_design.dart';
 
 class SmallInfoCard extends StatelessWidget {
   final String title;
   final String value;
   final bool isWide;
 
-  const SmallInfoCard({super.key, required this.title, required this.value, required this.isWide});
+  const SmallInfoCard({
+    super.key, 
+    required this.title, 
+    required this.value, 
+    required this.isWide
+  });
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Container(
-      width: double.infinity, 
-      margin: EdgeInsets.only(
-        bottom: isWide ? 0 : 12,
-        right: isWide ? 8 : 0,
+    final card = Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.md + 4,
+        horizontal: AppSpacing.sm + 4,
       ),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        color: AppColors.surface,
+        borderRadius: AppRadius.roundedLg,
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, 
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, 
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13), 
-            textAlign: TextAlign.center
+          Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.textSecondary, 
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-          Text(value, 
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+          AppSpacing.vsm,
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold, 
+              fontSize: 16,
+              color: AppColors.primaryBlue,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
 
-    // Solo aplicamos Expanded si estamos en una fila (isWide)
-    return isWide ? Expanded(flex: 1, child: content) : content;
+    return isWide ? Expanded(child: card) : card;
   }
 }

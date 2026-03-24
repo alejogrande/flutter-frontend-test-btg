@@ -1,5 +1,5 @@
 import 'package:btg_funds_app/core/theme/app_colors.dart';
-import 'package:btg_funds_app/core/theme/app_design.dart'; // Importamos el sistema
+import 'package:btg_funds_app/core/theme/app_design.dart'; 
 import 'package:btg_funds_app/core/utils/formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,14 +15,14 @@ class BalanceCard extends StatelessWidget {
       builder: (context, state) {
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.lg), // Usamos constante
+          padding: const EdgeInsets.all(AppSpacing.lg), 
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.accentBlue, AppColors.deepNavy],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: AppRadius.roundedXl, // Usamos constante
+            borderRadius: AppRadius.roundedXl, 
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.15),
@@ -38,7 +38,7 @@ class BalanceCard extends StatelessWidget {
                 'Saldo disponible',
                 style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
-              AppSpacing.vsm, // Espaciado estándar
+              AppSpacing.vsm,
               Row(
                 children: [
                   const Icon(Icons.account_balance_wallet_outlined, 
@@ -49,7 +49,7 @@ class BalanceCard extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        AppFormatters.toCurrency(state.balance), // Formateador centralizado
+                        AppFormatters.toCurrency(state.balance), 
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 36,
