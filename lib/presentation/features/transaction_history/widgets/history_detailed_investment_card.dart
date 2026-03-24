@@ -25,7 +25,7 @@ class DetailedInvestmentCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: AppRadius.roundedMd,
         border: Border.all(
-          color: isSub ? AppColors.primaryBlue.withOpacity(0.1) : AppColors.border,
+          color: isSub ? AppColors.primaryBlue.withValues(alpha: 0.1) : AppColors.border,
         ),
       ),
       child: Column(

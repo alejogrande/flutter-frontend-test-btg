@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
 
-void init() {
+Future<void> init() async {
   // --- BLOCS ---
   // Usamos factory para que se cree una instancia nueva cada vez que se necesite el Bloc
   sl.registerFactory(() => FundsBloc(getAvailableFundsUseCase: sl()));

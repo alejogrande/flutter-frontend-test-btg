@@ -25,7 +25,7 @@ class HistoryStatsHeader extends StatelessWidget {
             isWide ? AppSpacing.hsm : AppSpacing.vsm,
             SmallInfoCard(
               title: 'Recuperado',
-              value: AppFormatters.toCurrency(summary.totalRecovered ?? 0),
+              value: AppFormatters.toCurrency(summary.totalRecovered),
               isWide: isWide,
             ),
             isWide ? AppSpacing.hsm : AppSpacing.vsm,

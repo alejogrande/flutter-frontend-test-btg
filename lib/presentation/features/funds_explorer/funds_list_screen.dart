@@ -65,7 +65,7 @@ class FundsListScreen extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         int crossAxisCount = constraints.maxWidth < 700 ? 1 : 2;
-        double aspectRatio = constraints.maxWidth < 700 ? 1.4 : 1.3;
+        double aspectRatio = constraints.maxWidth < 700 ? 2.2 : 1.6;
 
         return GridView.builder(
           padding: const EdgeInsets.all(AppSpacing.md),

@@ -64,8 +64,8 @@ class QuickActionsSection extends StatelessWidget {
           title: 'Inversiones disponibles',
           subtitle: 'Explora nuevas inversiones',
           icon: Icons.auto_graph_rounded,
-          iconContainerColor: AppColors.info,
-          backgroundColor: const Color(0xFFF3E5F5),
+          iconContainerColor: AppColors.accentBlue,
+          backgroundColor: AppColors.accentBlue.withValues(alpha: 0.2),
           onTap: () => nav.goToExplorer(),
         ),
         HomeActionButton(

@@ -49,7 +49,7 @@ class ActiveInvestmentsCard extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: activeSubscriptions.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       const Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, index) {
                     final t = activeSubscriptions[index];

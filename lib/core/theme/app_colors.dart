@@ -9,7 +9,7 @@ class AppColors {
   // Status Colors
   static const Color success = Color(0xFF2E7D32);
   static const Color error = Color(0xFFD32F2F);
-  static const Color info = Color(0xFF7E57C2);
+  static const Color info = Color.fromARGB(255, 25, 125, 219);
 
   // Backgrounds & Greys
   static const Color background = Color(0xFFF8F9FA);
