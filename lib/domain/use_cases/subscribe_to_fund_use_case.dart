@@ -1,4 +1,4 @@
-import 'package:btg_funds_app/domain/entities/transaction_type.dart';
+import 'package:btg_funds_app/domain/entities/transaction_type_entity.dart';
 
 import '../repositories/account_repository.dart';
 import 'package:uuid/uuid.dart'; 

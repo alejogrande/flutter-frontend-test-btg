@@ -1,4 +1,4 @@
-import 'package:btg_funds_app/domain/entities/transaction_type.dart';
+import 'package:btg_funds_app/domain/entities/transaction_type_entity.dart';
 
 abstract class AccountRepository {
   double getBalance();

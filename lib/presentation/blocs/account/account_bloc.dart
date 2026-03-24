@@ -1,32 +1,31 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:btg_funds_app/domain/repositories/account_repository.dart';
 import 'package:btg_funds_app/domain/use_cases/subscribe_to_fund_use_case.dart';
-import 'package:btg_funds_app/presentation/blocs/account/account_event.dart';
-import 'package:btg_funds_app/presentation/blocs/account/account_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'account_event.dart';
+import 'account_state.dart';
 
 class AccountBloc extends Bloc<AccountEvent, AccountState> {
   final AccountRepository repository;
   final SubscribeToFundUseCase subscribeToFundUseCase;
 
   AccountBloc({required this.repository, required this.subscribeToFundUseCase})
-    : super(AccountState(balance: 500000.0, history: [])) {
+      : super(const AccountDataState(balance: 500000.0, history: [])) {
+    
+    // Manejo de carga de información
     on<LoadAccountInfoEvent>((event, emit) {
-      emit(
-        AccountState(
-          balance: repository.getBalance(),
-          history: repository.getHistory(),
-        ),
-      );
+      emit(AccountDataState(
+        balance: repository.getBalance(),
+        history: repository.getHistory(),
+      ));
     });
 
+    // Manejo de suscripción a fondos
     on<SubscribeToFundEvent>((event, emit) async {
-      emit(
-        AccountState(
-          balance: state.balance,
-          history: state.history,
-          isSubscribing: true,
-        ),
-      );
+      final currentBalance = repository.getBalance();
+      final currentHistory = repository.getHistory();
+
+      // 1. Emitimos carga manteniendo los datos actuales
+      emit(AccountSubscribing(balance: currentBalance, history: currentHistory));
 
       final error = await subscribeToFundUseCase(
         fundName: event.fundName,
@@ -35,15 +34,25 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       );
 
       if (error != null) {
-        emit(
-          AccountState(
-            balance: state.balance,
-            history: state.history,
-            errorMessage: error,
-          ),
-        );
+        // 2. ERROR: Emitimos el estado de error
+        emit(AccountSubscriptionError(
+          errorMessage: error,
+          balance: currentBalance,
+          history: currentHistory,
+        ));
+        
+        // 3. Importante: Regresamos al estado de datos para que la UI se estabilice
+        emit(AccountDataState(balance: currentBalance, history: currentHistory));
       } else {
-        add(LoadAccountInfoEvent()); // Recargamos datos tras éxito
+        // 4. ÉXITO: Emitimos éxito
+        emit(AccountSubscriptionSuccess(
+          message: "¡Inversión exitosa en ${event.fundName}!",
+          balance: currentBalance - event.amount, // Balance estimado mientras recarga
+          history: currentHistory,
+        ));
+
+        // 5. Recargamos la data real desde el repositorio
+        add( LoadAccountInfoEvent());
       }
     });
   }

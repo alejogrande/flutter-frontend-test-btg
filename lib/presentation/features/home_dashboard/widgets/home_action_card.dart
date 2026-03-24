@@ -47,7 +47,6 @@ class HomeActionButton extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // Icono encerrado en cuadro con border radius
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(

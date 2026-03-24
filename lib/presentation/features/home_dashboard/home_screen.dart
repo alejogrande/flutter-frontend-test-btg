@@ -2,7 +2,7 @@ import 'package:btg_funds_app/core/navigation/navigation_cubit.dart';
 import 'package:btg_funds_app/presentation/features/home_dashboard/widgets/home_action_card.dart';
 import 'package:btg_funds_app/presentation/features/home_dashboard/widgets/home_active_investments_card.dart';
 import 'package:btg_funds_app/presentation/features/home_dashboard/widgets/home_balance_card.dart';
-import 'package:btg_funds_app/presentation/features/home_dashboard/widgets/home_small_info_card.dart';
+import 'package:btg_funds_app/presentation/widgets/small_info_card.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';

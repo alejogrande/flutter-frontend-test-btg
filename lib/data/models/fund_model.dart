@@ -6,6 +6,7 @@ class FundModel extends FundEntity {
     required super.name,
     required super.minimumAmount,
     required super.category,
+    required super.annualRate,
   });
 
   factory FundModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,7 @@ class FundModel extends FundEntity {
       name: json['name'],
       minimumAmount: (json['minimumAmount'] as num).toDouble(),
       category: json['category'],
+      annualRate:(json['annualRate'] as num).toDouble(),
     );
   }
 }

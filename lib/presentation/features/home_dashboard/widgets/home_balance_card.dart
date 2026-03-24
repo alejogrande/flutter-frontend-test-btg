@@ -3,13 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:btg_funds_app/presentation/blocs/account/account_bloc.dart';
 import 'package:btg_funds_app/presentation/blocs/account/account_state.dart';
 
-class BalanceCard extends StatelessWidget {
+class BalanceCard extends StatefulWidget {
   const BalanceCard({super.key});
+
+  @override
+  State<BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends State<BalanceCard> {
+  // Guardamos el último saldo válido para evitar que la UI salte a 0 en errores o cargas
+  double _lastValidBalance = 0;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AccountBloc, AccountState>(
       builder: (context, state) {
+        // Actualizamos el último saldo solo si el estado actual es válido
+        // Como todas nuestras nuevas clases heredan de AccountState, 
+        // todas tienen la propiedad .balance
+        _lastValidBalance = state.balance;
+
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -38,14 +51,18 @@ class BalanceCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.account_balance_wallet_outlined, color: Colors.white, size: 28),
+                  const Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: FittedBox(
                       alignment: Alignment.centerLeft,
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        '\$${_formatCurrency(state.balance)}',
+                        '\$${_formatCurrency(_lastValidBalance)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -54,12 +71,26 @@ class BalanceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Agregamos un indicador de carga sutil si el estado es Subscribing
+                  if (state is AccountSubscribing)
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 12),
               const Text(
                 'Disponible para nuevas inversiones',
-                style: TextStyle(color: Colors.white60, fontSize: 14, fontStyle: FontStyle.italic),
+                style: TextStyle(
+                  color: Colors.white60,
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ],
           ),
@@ -70,6 +101,8 @@ class BalanceCard extends StatelessWidget {
 
   String _formatCurrency(double amount) {
     return amount.toStringAsFixed(0).replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
   }
 }

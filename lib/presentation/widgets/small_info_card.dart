@@ -22,7 +22,7 @@ class SmallInfoCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Ocupa solo el alto necesario de los textos
+        mainAxisSize: MainAxisSize.min, 
         children: [
           Text(title, 
             style: TextStyle(color: Colors.grey.shade600, fontSize: 13), 
