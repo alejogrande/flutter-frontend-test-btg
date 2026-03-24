@@ -1,3 +1,41 @@
+## 🚀 Guía de Instalación y Ejecución
+
+Para asegurar la correcta ejecución del proyecto, se recomienda utilizar el siguiente entorno de desarrollo:
+
+### Requisitos del Sistema
+* **Flutter SDK**: 3.41.5 (Channel Stable)
+* **Dart SDK**: 3.11.3
+* **Plataforma de prueba**: Android Emulator / iOS Simulator / Google Chrome
+
+### Pasos para la Configuración Local
+
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone [https://github.com/alejogrande/flutter-frontend-test-btg.git](https://github.com/alejogrande/flutter-frontend-test-btg.git)
+    cd btg_funds_app
+    ```
+
+2.  **Limpieza e instalación de dependencias:**
+    ```bash
+    flutter clean
+    flutter pub get
+    ```
+
+3.  **Ejecutar el proyecto:**
+    * **Para entorno Mobile:**
+        ```bash
+        flutter run
+        ```
+    * **Para entorno Web:**
+        ```bash
+        flutter run -d chrome
+        ```
+
+### 🧪 Pruebas Unitarias
+El proyecto incluye pruebas para validar la lógica de los Casos de Uso y las reglas de negocio del Dominio (validación de saldos y montos mínimos). Para ejecutarlas, use el siguiente comando:
+```bash
+flutter test
+
 # 🏗️ Arquitectura de Capa de Presentación (UI)
 
 El proyecto implementa un patrón de **Desacoplamiento Funcional** y **Composición de Widgets**. Las vistas (Screens) no contienen lógica de cálculo ni validaciones complejas; estas responsabilidades se delegan a `AppFormatters` y `AppValidators`.
