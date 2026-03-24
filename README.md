@@ -36,6 +36,8 @@ El proyecto incluye pruebas para validar la lógica de los Casos de Uso y las re
 ```bash
 flutter test
 
+```
+
 # 🏗️ Arquitectura de Capa de Presentación (UI)
 
 El proyecto implementa un patrón de **Desacoplamiento Funcional** y **Composición de Widgets**. Las vistas (Screens) no contienen lógica de cálculo ni validaciones complejas; estas responsabilidades se delegan a `AppFormatters` y `AppValidators`.
