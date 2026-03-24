@@ -57,11 +57,6 @@ class HistoryScreen extends StatelessWidget {
         builder: (context, state) {
           final transactions = state.history;
 
-          // Filtramos las cancelaciones (retiros)
-          final cancellations = transactions
-              .where((t) => t.type == TransactionType.cancellation)
-              .toList();
-
           // Cálculo dinámico para las estadísticas superiores
           double totalRecuperado = 0;
           for (var t in transactions) {

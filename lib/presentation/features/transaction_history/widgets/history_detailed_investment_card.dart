@@ -38,6 +38,7 @@ class DetailedInvestmentCard extends StatelessWidget {
         // ignore: deprecated_member_use
         border: Border.all(
           color: isActive
+              // ignore: deprecated_member_use
               ? const Color(0xFF002C5F).withOpacity(0.3)
               : Colors.grey.shade200,
         ),

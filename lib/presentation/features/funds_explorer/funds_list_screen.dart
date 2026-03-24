@@ -7,6 +7,7 @@ import 'package:btg_funds_app/presentation/blocs/account/account_state.dart';
 import 'package:btg_funds_app/presentation/features/funds_explorer/widgets/investment_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'bloc/funds_bloc.dart';
 import 'bloc/funds_event.dart';
 import 'bloc/funds_state.dart';
@@ -16,106 +17,245 @@ class FundsListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Envolvemos con el BlocProvider recuperando la instancia de GetIt (sl)
+    const double maxAppWidth = 1000.0;
+
     return BlocProvider(
       create: (context) => sl<FundsBloc>()..add(FetchFundsEvent()),
       child: BlocListener<AccountBloc, AccountState>(
         listener: (context, state) {
           if (state is AccountSubscriptionError) {
-            ScaffoldMessenger.of(context).removeCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('❌ ${state.errorMessage}'),
-                backgroundColor: Colors.redAccent,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
+            _showSnackBar(context, '❌ ${state.errorMessage}', Colors.redAccent);
           }
-
           if (state is AccountSubscriptionSuccess) {
-            ScaffoldMessenger.of(context).removeCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('✅ ${state.message}'),
-                backgroundColor: const Color(0xFF002C5F),
-                behavior: SnackBarBehavior.floating,
-              ),
+            _showSnackBar(
+              context,
+              '✅ ${state.message}',
+              const Color(0xFF002C5F),
             );
           }
         },
         child: Scaffold(
+          backgroundColor: const Color(0xFFF5F7FA),
           appBar: AppBar(
             title: const Text('Fondos Disponibles'),
+            backgroundColor: Colors.white,
+            elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => context.read<NavigationCubit>().goToHome(),
             ),
           ),
-          body: BlocBuilder<FundsBloc, FundsState>(
-            builder: (context, state) {
-              // 2. Manejo de estado: Cargando
-              if (state is FundsLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          body: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: maxAppWidth),
+              child: BlocBuilder<FundsBloc, FundsState>(
+                builder: (context, state) {
+                  if (state is FundsLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              // 3. Manejo de estado: Éxito (Lista cargada)
-              if (state is FundsLoaded) {
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.funds.length,
-                  separatorBuilder: (_, _) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final fund = state.funds[index];
-                    return ListTile(
-                      title: Text(
-                        fund.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text('Categoría: ${fund.category}'),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text('Mínimo', style: TextStyle(fontSize: 12)),
-                          Text(
-                            '\$${fund.minimumAmount.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      onTap: () {
-                        _openInvestmentModal(context, fund);
+                  if (state is FundsLoaded) {
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        // FIX: Ajuste de breakpoints y ratios para evitar desbordes
+                        int crossAxisCount = constraints.maxWidth < 700 ? 1 : 2;
+
+                        // En móvil (1 columna) damos más altura (ratio menor)
+                        // En desktop (2 columnas) el ratio de 1.3 es más seguro que 1.5
+                        double aspectRatio = constraints.maxWidth < 700
+                            ? 1.35
+                            : 1.3;
+
+                        return GridView.builder(
+                          padding: const EdgeInsets.all(16),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: aspectRatio,
+                              ),
+                          itemCount: state.funds.length,
+                          itemBuilder: (context, index) {
+                            return _FundGridCard(
+                              fund: state.funds[index],
+                              onTap: () => _openInvestmentModal(
+                                context,
+                                state.funds[index],
+                              ),
+                            );
+                          },
+                        );
                       },
                     );
-                  },
-                );
-              }
+                  }
 
-              // 4. Manejo de estado: Error
-              if (state is FundsError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(state.message, textAlign: TextAlign.center),
-                      ElevatedButton(
-                        onPressed: () =>
-                            context.read<FundsBloc>().add(FetchFundsEvent()),
-                        child: const Text('Reintentar'),
-                      ),
-                    ],
-                  ),
-                );
-              }
+                  if (state is FundsError) {
+                    return _buildErrorState(context, state.message);
+                  }
 
-              return const SizedBox.shrink();
-            },
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(message, textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.read<FundsBloc>().add(FetchFundsEvent()),
+            child: const Text('Reintentar'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FundGridCard extends StatelessWidget {
+  final FundEntity fund;
+  final VoidCallback onTap;
+
+  const _FundGridCard({required this.fund, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final currencyFormat = NumberFormat.currency(
+      locale: 'es_CO',
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+    const int durationMonths = 12;
+    final double estimatedReturn =
+        fund.minimumAmount * (1 + (fund.annualRate / 100));
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween, // Distribuye espacio sin Spacer
+          children: [
+            // Cabecera
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  fund.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Color(0xFF002C5F),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Categoría: ${fund.category}',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+
+            // Información técnica
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildInfoColumn(
+                  'Tasa Anual',
+                  '${(fund.annualRate * 100).toStringAsFixed(2)}%',
+                ),
+                _buildInfoColumn('Duración', '$durationMonths Meses'),
+              ],
+            ),
+
+            // Inversión mínima
+            _buildInfoColumn(
+              'Inversión Mínima',
+              currencyFormat.format(fund.minimumAmount),
+              isBold: true,
+            ),
+
+            // Botón y Retorno
+            Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: onTap,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF002C5F),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Invertir ahora',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Retorno estimado: ${currencyFormat.format(estimatedReturn)}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color.fromARGB(255, 55, 59, 55),
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoColumn(String label, String value, {bool isBold = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -123,12 +263,11 @@ class FundsListScreen extends StatelessWidget {
 void _openInvestmentModal(BuildContext context, FundEntity fund) {
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true, // Permite que el modal suba con el teclado
-    backgroundColor: Colors.transparent, // Para que se vea el redondeado
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
     builder: (context) => InvestmentBottomSheet(
       fund: fund,
       onConfirm: (amount) {
-        // Disparamos el evento al BLoC que ya configuramos
         context.read<AccountBloc>().add(
           SubscribeToFundEvent(
             fundName: fund.name,
