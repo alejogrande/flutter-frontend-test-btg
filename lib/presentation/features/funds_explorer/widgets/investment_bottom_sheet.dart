@@ -1,6 +1,10 @@
+import 'package:btg_funds_app/core/utils/app_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:btg_funds_app/domain/entities/fund_entity.dart';
+import 'package:btg_funds_app/core/theme/app_colors.dart';
+import 'package:btg_funds_app/core/theme/app_design.dart';
+import 'package:btg_funds_app/core/utils/formatters.dart';
 
 class InvestmentBottomSheet extends StatefulWidget {
   final FundEntity fund;
@@ -26,29 +30,6 @@ class _InvestmentBottomSheetState extends State<InvestmentBottomSheet> {
     super.dispose();
   }
 
-  void _validateAndConfirm() {
-    final String cleanValue = _amountController.text.replaceAll(
-      RegExp(r'[^\d]'),
-      '',
-    );
-    final double? amount = double.tryParse(cleanValue);
-
-    if (amount == null || amount <= 0) {
-      setState(() => _errorMessage = "Ingresa un monto válido");
-      return;
-    }
-
-    if (amount < widget.fund.minimumAmount) {
-      setState(
-        () => _errorMessage =
-            "El monto mínimo es \$${widget.fund.minimumAmount.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}",
-      );
-      return;
-    }
-
-    Navigator.pop(context);
-    widget.onConfirm(amount);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,107 +39,133 @@ class _InvestmentBottomSheetState extends State<InvestmentBottomSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
-        top: 20,
-        left: 24,
-        right: 24,
-
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        top: AppSpacing.md,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-  
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          Text(
-            'Invertir en ${widget.fund.name}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Color(0xFF002C5F),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              'Monto mínimo: \$${widget.fund.minimumAmount.toInt()}',
-              style: TextStyle(
-                color: Colors.blue.shade900,
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          TextField(
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              hintText: '0',
-              prefixText: '\$ ',
-              errorText: _errorMessage,
-              contentPadding: const EdgeInsets.symmetric(vertical: 20),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: Colors.grey.shade300),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: Color(0xFF002C5F),
-                  width: 2,
-                ),
-              ),
-            ),
-            onChanged: (value) {
-              if (_errorMessage != null) setState(() => _errorMessage = null);
-            },
-          ),
-
-          const SizedBox(height: 24),
-
-          ElevatedButton(
-            onPressed: _validateAndConfirm,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF002C5F),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Text(
-              'Confirmar Inversión',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
+          _buildHandle(),
+          AppSpacing.vmd,
+          _buildHeader(),
+          AppSpacing.vmd,
+          _buildAmountInput(),
+          AppSpacing.vlg,
+          _buildConfirmButton(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHandle() {
+    return Center(
+      child: Container(
+        width: 40,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          borderRadius: AppRadius.roundedSm,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        Text(
+          'Invertir en ${widget.fund.name}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: AppColors.primaryBlue,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        AppSpacing.vsm,
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: AppRadius.roundedSm,
+          ),
+          child: Text(
+            'Monto mínimo: ${AppFormatters.toCurrency(widget.fund.minimumAmount)}',
+            style: TextStyle(
+              color: Colors.blue.shade900,
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAmountInput() {
+    return TextField(
+      controller: _amountController,
+      keyboardType: TextInputType.number,
+      autofocus: true,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      textAlign: TextAlign.center,
+      decoration: InputDecoration(
+        hintText: '0',
+        prefixText: '\$ ',
+        errorText: _errorMessage,
+        border: OutlineInputBorder(borderRadius: AppRadius.roundedMd),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundedMd,
+          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
+        ),
+      ),
+      onChanged: (_) {
+        if (_errorMessage != null) setState(() => _errorMessage = null);
+      },
+    );
+  }
+
+Widget _buildConfirmButton() {
+    return ElevatedButton(
+      onPressed: () {
+        // 1. Limpiamos el valor usando el validador externo
+        final double amount = AppValidators.parseCurrencyToDouble(_amountController.text);
+        
+        // 2. Ejecutamos la lógica de validación
+        final String? error = AppValidators.validateInvestmentAmount(
+          value: _amountController.text,
+          minAmount: widget.fund.minimumAmount,
+          minAmountFormatted: AppFormatters.toCurrency(widget.fund.minimumAmount),
+        );
+
+        if (error != null) {
+          setState(() => _errorMessage = error);
+          return;
+        }
+
+        // 3. Si todo está ok, cerramos el bottom sheet y notificamos el monto limpio
+        Navigator.pop(context);
+        widget.onConfirm(amount);
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.roundedMd,
+        ),
+      ),
+      child: const Text(
+        'Confirmar Inversión',
+        style: TextStyle(
+          fontSize: 16, 
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

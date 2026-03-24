@@ -5,12 +5,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool showBackButton;
+  final VoidCallback? onBack; 
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.actions,
     this.showBackButton = false,
+    this.onBack, 
   });
 
   @override
@@ -30,14 +32,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: showBackButton 
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primaryBlue, size: 20),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (onBack != null) {
+                  onBack!();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
             )
           : null,
       actions: actions,
     );
   }
 
-  // Esto es obligatorio al implementar PreferredSizeWidget
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
