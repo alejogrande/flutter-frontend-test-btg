@@ -1,0 +1,1 @@
+enum TransactionType { subscription, cancellation } // <--- Revisa que sea minúscula

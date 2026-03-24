@@ -33,6 +33,7 @@ class _BalanceCardState extends State<BalanceCard> {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
+                // ignore: deprecated_member_use
                 color: Colors.black.withOpacity(0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 8),

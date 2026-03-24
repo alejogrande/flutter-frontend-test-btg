@@ -134,6 +134,7 @@ void _openInvestmentModal(BuildContext context, FundEntity fund) {
             fundName: fund.name,
             amount: amount,
             minAmount: fund.minimumAmount,
+            annualRate: fund.annualRate,
           ),
         );
       },

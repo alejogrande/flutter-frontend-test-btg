@@ -39,6 +39,7 @@ class HomeActionButton extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade200),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
@@ -50,6 +51,7 @@ class HomeActionButton extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: iconContainerColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),

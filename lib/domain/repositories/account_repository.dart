@@ -5,4 +5,6 @@ abstract class AccountRepository {
   Future<void> updateBalance(double newBalance);
   Future<void> saveTransaction(TransactionEntity transaction);
   List<TransactionEntity> getHistory();
+  Future<void> unsubscribe(String fundName, double amount);
+
 }

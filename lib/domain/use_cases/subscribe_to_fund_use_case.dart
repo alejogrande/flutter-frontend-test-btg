@@ -1,3 +1,4 @@
+import 'package:btg_funds_app/data/enums/transaction_type.dart';
 import 'package:btg_funds_app/domain/entities/transaction_type_entity.dart';
 
 import '../repositories/account_repository.dart';
@@ -12,6 +13,7 @@ class SubscribeToFundUseCase {
     required String fundName,
     required double amount,
     required double minAmount,
+    required double annualRate,
   }) async {
     final currentBalance = repository.getBalance();
 
@@ -35,6 +37,7 @@ class SubscribeToFundUseCase {
       amount: amount,
       date: DateTime.now(),
       type: TransactionType.subscription,
+      annualRate: annualRate
     );
 
     await repository.saveTransaction(transaction);

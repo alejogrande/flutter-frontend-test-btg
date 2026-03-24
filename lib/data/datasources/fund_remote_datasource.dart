@@ -11,11 +11,11 @@ class FundMockDataSourceImpl implements FundRemoteDataSource {
     await Future.delayed(const Duration(seconds: 1));
 
     final mockData = [
-      {'id': '1', 'name': 'FPV_BTG_PACTUAL_RECAUDADORA', 'minimumAmount': 75000, 'category': 'FPV','annualRate':4.60},
-      {'id': '2', 'name': 'FPV_BTG_PACTUAL_ECOPETROL', 'minimumAmount': 125000, 'category': 'FPV','annualRate':5.10},
-      {'id': '3', 'name': 'DEUDAPRIVADA', 'minimumAmount': 50000, 'category': 'FIC','annualRate':4.15},
-      {'id': '4', 'name': 'FDO-ACCIONES', 'minimumAmount': 250000, 'category': 'FIC','annualRate':5.95},
-      {'id': '5', 'name': 'FPV_BTG_PACTUAL_DINAMICA', 'minimumAmount': 100000, 'category': 'FPV','annualRate':4.85},
+      {'id': '1', 'name': 'FPV_BTG_PACTUAL_RECAUDADORA', 'minimumAmount': 75000, 'category': 'FPV','annualRate':0.0460},
+      {'id': '2', 'name': 'FPV_BTG_PACTUAL_ECOPETROL', 'minimumAmount': 125000, 'category': 'FPV','annualRate':0.0510},
+      {'id': '3', 'name': 'DEUDAPRIVADA', 'minimumAmount': 50000, 'category': 'FIC','annualRate':0.0415},
+      {'id': '4', 'name': 'FDO-ACCIONES', 'minimumAmount': 250000, 'category': 'FIC','annualRate':0.0595},
+      {'id': '5', 'name': 'FPV_BTG_PACTUAL_DINAMICA', 'minimumAmount': 100000, 'category': 'FPV','annualRate':0.0485},
     ];
 
     return mockData.map((json) => FundModel.fromJson(json)).toList();
