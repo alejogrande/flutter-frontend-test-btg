@@ -11,16 +11,14 @@ class BalanceCard extends StatefulWidget {
 }
 
 class _BalanceCardState extends State<BalanceCard> {
-  // Guardamos el último saldo válido para evitar que la UI salte a 0 en errores o cargas
+
   double _lastValidBalance = 0;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AccountBloc, AccountState>(
       builder: (context, state) {
-        // Actualizamos el último saldo solo si el estado actual es válido
-        // Como todas nuestras nuevas clases heredan de AccountState, 
-        // todas tienen la propiedad .balance
+
         _lastValidBalance = state.balance;
 
         return Container(
@@ -71,7 +69,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       ),
                     ),
                   ),
-                  // Agregamos un indicador de carga sutil si el estado es Subscribing
+
                   if (state is AccountSubscribing)
                     const SizedBox(
                       width: 20,

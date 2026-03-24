@@ -46,13 +46,7 @@ class _InvestmentBottomSheetState extends State<InvestmentBottomSheet> {
       return;
     }
 
-    // --- EL CAMBIO CRÍTICO ---
-
-    // 1. Cerramos el modal primero para liberar el contexto
     Navigator.pop(context);
-
-    // 2. Ejecutamos el callback.
-    // Ahora 'onConfirm' se ejecutará en el contexto de la FundsListScreen
     widget.onConfirm(amount);
   }
 
@@ -67,14 +61,14 @@ class _InvestmentBottomSheetState extends State<InvestmentBottomSheet> {
         top: 20,
         left: 24,
         right: 24,
-        // Este padding es vital para que el teclado no tape el botón
+
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Indicador visual de arrastre (Handle)
+  
           Center(
             child: Container(
               width: 40,

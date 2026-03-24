@@ -6,7 +6,7 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Definimos el ancho máximo para que no se vea estirado en pantallas grandes
+
     const double maxContentWidth = 1300;
 
     return Scaffold(
