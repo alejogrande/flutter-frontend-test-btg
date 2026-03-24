@@ -12,7 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Inicializa GetIt (Inyector de dependencias)
-  await di.init();
+  di.init();
   
   runApp(const MyApp());
 }
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      // Obtenemos la instancia del Cubit desde el Service Locator (GetIt)
+      // Se obtiene la instancia del Cubit desde el Service Locator (GetIt)
       create: (_) => di.sl<NavigationCubit>(),
       child: MaterialApp.router(
         title: 'BTG Pactual - Prueba Técnica',
