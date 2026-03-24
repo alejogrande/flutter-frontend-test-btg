@@ -1,3 +1,5 @@
+import 'package:btg_funds_app/core/theme/app_colors.dart';
+import 'package:btg_funds_app/core/theme/app_design.dart';
 import 'package:flutter/material.dart';
 
 class HomeActionButton extends StatelessWidget {
@@ -22,24 +24,22 @@ class HomeActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Si el ancho disponible es mayor a 500, calculamos para que quepan 2 en fila
-        // Restamos el spacing del Wrap (16) dividido entre 2.
+        // Usamos el sistema de espaciado para el cálculo de ancho
         final double width = constraints.maxWidth > 500 
-            ? (constraints.maxWidth / 2) - 8 
+            ? (constraints.maxWidth / 2) - (AppSpacing.sm) 
             : double.infinity;
 
         return GestureDetector(
           onTap: onTap,
           child: Container(
             width: width,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: backgroundColor ?? Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.shade200),
+              color: backgroundColor ?? AppColors.surface,
+              borderRadius: AppRadius.roundedLg,
+              border: Border.all(color: AppColors.border),
               boxShadow: [
                 BoxShadow(
-                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
@@ -48,48 +48,65 @@ class HomeActionButton extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
-                    color: iconContainerColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: iconContainerColor, size: 24),
-                ),
-                const SizedBox(width: 16),
-                // Textos
+                _IconContainer(icon: icon, color: iconContainerColor),
+                AppSpacing.hmd,
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14, // Un poco más pequeño para que no rompa en pantallas chicas
-                          color: Color(0xFF002C5F),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: _ButtonText(title: title, subtitle: subtitle),
                 ),
-                // Flecha a la derecha
-                Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
+                Icon(Icons.chevron_right, color: AppColors.textLight, size: 20),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+// Sub-widgets privados para mantener el build limpio
+class _IconContainer extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  const _IconContainer({required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm + 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: AppRadius.roundedMd,
+      ),
+      child: Icon(icon, color: color, size: 24),
+    );
+  }
+}
+
+class _ButtonText extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  const _ButtonText({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: AppColors.primaryBlue,
+          ),
+        ),
+        AppSpacing.vxs,
+        Text(
+          subtitle,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+        ),
+      ],
     );
   }
 }

@@ -1,71 +1,11 @@
-import 'package:btg_funds_app/data/enums/transaction_type.dart';
-import 'package:btg_funds_app/presentation/blocs/account/account_bloc.dart';
-import 'package:btg_funds_app/presentation/blocs/account/account_state.dart';
+import 'package:btg_funds_app/presentation/features/home_dashboard/widgets/home_investment_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-
-class _InvestmentItem extends StatelessWidget {
-  final String name;
-  final String type;
-  final String date;
-  final String total;
-  final String invested;
-  final String profit;
-
-  const _InvestmentItem({
-    required this.name,
-    required this.type,
-    required this.date,
-    required this.total,
-    required this.invested,
-    required this.profit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // LADO IZQUIERDO
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(type, style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
-                Text(date, style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          // LADO DERECHO
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                total,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002C5F)),
-              ),
-              Text('Inv: $invested', style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
-              Text(
-                profit,
-                style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
+import 'package:btg_funds_app/core/theme/app_colors.dart';
+import 'package:btg_funds_app/core/theme/app_design.dart';
+import 'package:btg_funds_app/core/utils/formatters.dart';
+import 'package:btg_funds_app/presentation/blocs/account/account_bloc.dart';
+import 'package:btg_funds_app/presentation/blocs/account/account_state.dart';
 
 class ActiveInvestmentsCard extends StatelessWidget {
   const ActiveInvestmentsCard({super.key});
@@ -74,18 +14,18 @@ class ActiveInvestmentsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AccountBloc, AccountState>(
       builder: (context, state) {
-        // Filtramos solo las suscripciones activas
+        // Usamos el getter isActive que definimos en tu Entity
         final activeSubscriptions = state.history
-            .where((t) => t.type == TransactionType.subscription)
+            .where((t) => t.isActive)
             .toList();
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade200),
+            color: AppColors.surface,
+            borderRadius: AppRadius.roundedXl,
+            border: Border.all(color: AppColors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,36 +36,37 @@ class ActiveInvestmentsCard extends StatelessWidget {
               ),
               Text(
                 'Tienes ${activeSubscriptions.length} inversiones activas',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
               ),
-              const SizedBox(height: 10),
-              
+              AppSpacing.vmd,
+
               if (activeSubscriptions.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: Text("No tienes inversiones vigentes")),
-                )
+                const _EmptyInvestments()
               else
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: activeSubscriptions.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, index) {
                     final t = activeSubscriptions[index];
-                    
-                    // Cálculos para la card
-                    final double profitAmount = t.amount * t.annualRate;
-                    final double totalValue = t.amount + profitAmount;
-                    final String formattedDate = DateFormat('dd MMM yyyy', 'es_CO').format(t.date);
 
-                    return _InvestmentItem(
+                    final profitAmount = t.amount * t.annualRate;
+                    final totalValue = t.amount + profitAmount;
+
+                    return InvestmentItem(
                       name: t.fundName,
-                      type: 'Fondo de Inversión',
-                      date: formattedDate,
-                      total: '\$${_format(totalValue)}',
-                      invested: '\$${_format(t.amount)}',
-                      profit: '${(t.annualRate * 100).toStringAsFixed(2)}% (+\$${_format(profitAmount)})',
+                      date: AppFormatters.formatDate(
+                        t.date,
+                      ), 
+                      total: AppFormatters.toCurrency(totalValue),
+                      invested: AppFormatters.toCurrency(t.amount),
+                      profit: profitAmount,
+                      profitPercent: t.annualRate * 100,
                     );
                   },
                 ),
@@ -135,11 +76,21 @@ class ActiveInvestmentsCard extends StatelessWidget {
       },
     );
   }
-
-  String _format(double val) => val
-      .toStringAsFixed(0)
-      .replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]}.',
-      );
 }
+
+class _EmptyInvestments extends StatelessWidget {
+  const _EmptyInvestments();
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+      child: Center(
+        child: Text(
+          "No tienes inversiones vigentes",
+          style: TextStyle(color: AppColors.textLight),
+        ),
+      ),
+    );
+  }
+}
+

@@ -1,40 +1,31 @@
+import 'package:btg_funds_app/core/theme/app_colors.dart';
+import 'package:btg_funds_app/core/theme/app_design.dart'; // Importamos el sistema
+import 'package:btg_funds_app/core/utils/formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:btg_funds_app/presentation/blocs/account/account_bloc.dart';
 import 'package:btg_funds_app/presentation/blocs/account/account_state.dart';
 
-class BalanceCard extends StatefulWidget {
+class BalanceCard extends StatelessWidget {
   const BalanceCard({super.key});
-
-  @override
-  State<BalanceCard> createState() => _BalanceCardState();
-}
-
-class _BalanceCardState extends State<BalanceCard> {
-
-  double _lastValidBalance = 0;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AccountBloc, AccountState>(
       builder: (context, state) {
-
-        _lastValidBalance = state.balance;
-
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.lg), // Usamos constante
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color.fromARGB(255, 79, 145, 221), Color(0xFF001A3D)],
+              colors: [AppColors.accentBlue, AppColors.deepNavy],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadius.roundedXl, // Usamos constante
             boxShadow: [
               BoxShadow(
-                // ignore: deprecated_member_use
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 15,
                 offset: const Offset(0, 8),
               ),
@@ -47,21 +38,18 @@ class _BalanceCardState extends State<BalanceCard> {
                 'Saldo disponible',
                 style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
-              const SizedBox(height: 12),
+              AppSpacing.vsm, // Espaciado estándar
               Row(
                 children: [
-                  const Icon(
-                    Icons.account_balance_wallet_outlined,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 12),
+                  const Icon(Icons.account_balance_wallet_outlined, 
+                             color: Colors.white, size: 28),
+                  AppSpacing.hmd,
                   Expanded(
                     child: FittedBox(
                       alignment: Alignment.centerLeft,
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        '\$${_formatCurrency(_lastValidBalance)}',
+                        AppFormatters.toCurrency(state.balance), // Formateador centralizado
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -70,19 +58,11 @@ class _BalanceCardState extends State<BalanceCard> {
                       ),
                     ),
                   ),
-
                   if (state is AccountSubscribing)
-                    const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    ),
+                    const _LoadingIndicator(),
                 ],
               ),
-              const SizedBox(height: 12),
+              AppSpacing.vmd,
               const Text(
                 'Disponible para nuevas inversiones',
                 style: TextStyle(
@@ -97,11 +77,15 @@ class _BalanceCardState extends State<BalanceCard> {
       },
     );
   }
+}
 
-  String _formatCurrency(double amount) {
-    return amount.toStringAsFixed(0).replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+class _LoadingIndicator extends StatelessWidget {
+  const _LoadingIndicator();
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 20, height: 20,
+      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+    );
   }
 }
