@@ -1,5 +1,5 @@
 import 'package:btg_funds_app/dependency_injection/dependency_injection.dart';
-import 'package:btg_funds_app/presentation/navigation/navigation_cubit.dart';
+import 'package:btg_funds_app/core/navigation/navigation_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/funds_bloc.dart';
@@ -34,7 +34,7 @@ class FundsListScreen extends StatelessWidget {
               return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: state.funds.length,
-                separatorBuilder: (_, __) => const Divider(),
+                separatorBuilder: (_, _) => const Divider(),
                 itemBuilder: (context, index) {
                   final fund = state.funds[index];
                   return ListTile(

@@ -1,4 +1,4 @@
-import 'package:btg_funds_app/presentation/navigation/navigation_cubit.dart';
+import 'package:btg_funds_app/core/navigation/navigation_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
